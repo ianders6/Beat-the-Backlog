@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beat the Backlog - Login</title>
+    
+    <!-- Bootstrap CSS (FIXED integrity) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- FIREBASE SDKs (NEW) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js" defer></script>
+  </head>
+  
+  <body>
+
+    <!-- Main Navigation Bar (UPDATED) -->
+    <nav class="navbar navbar-expand navbar-dark bg-dark border-bottom border-secondary-subtle">
+      <div class="container">
+        <!-- Site Brand/Logo -->
+        <a class="navbar-brand" href="home.html">Beat the Backlog</a>
+        
+        <!-- Navbar Links -->
+        <div class="navbar-collapse" id="navbarNav">
+          
+          <!-- Logged-OUT Links -->
+          <ul class="navbar-nav ms-auto align-items-center" id="nav-logged-out">
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="login.html">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="registration.html">Register</a></li>
+            <li class="nav-item"><a class="nav-link" href="library.html">Games</a></li>
+            <!-- Removed search -->
+          </ul>
+
+          <!-- Logged-IN Links (d-none) -->
+          <ul class="navbar-nav ms-auto align-items-center d-none" id="nav-logged-in">
+            <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="library.html">Games</a></li>
+            <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
+            <li class="nav-item ms-2">
+              <a href="#" class="btn btn-primary btn-sm" id="log-a-game-btn">Log a Game</a>
+            </li>
+            <li class="nav-item ms-2">
+              <button class="btn btn-sm btn-outline-secondary" id="logout-button">Logout</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav> <!-- End of Navbar -->
+
+    <!-- Main Page Content -->
+    <main class="container my-5">
+      <div class="row">
+        <!-- Center the form on larger screens -->
+        <div class="col-lg-6 col-md-8 mx-auto">
+          
+          <!-- Page Header -->
+          <h1 class="display-5 mb-4 text-center">Log In</h1>
+
+          <!-- Login Form Card -->
+          <div class="card bg-dark border-secondary text-white">
+            <div class="card-body p-4">
+              
+              <form id="login-form">
+                
+                <!-- Email Field -->
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email address</label>
+                  <input type="email" class="form-control bg-secondary text-white border-secondary" id="email" name="email" required>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="mb-4">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" class="form-control bg-secondary text-white border-secondary" id="password" name="password" required>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="d-grid mb-3">
+                  <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+                </div>
+              </form> <!-- End Login Form -->
+
+              <!-- Link to Register Page -->
+              <div class="text-center">
+                <small>Don't have an account? <a href="registration.html" class="text-white-50">Sign up here</a></small>
+              </div>
+
+            </div>
+          </div> <!-- End Login Form Card -->
+        </div>
+      </div> <!-- End row -->
+    </main> <!-- End of Main Page Content -->
+
+    <!-- Global Footer -->
+    <footer class="container text-center mt-5 py-4 border-top border-secondary-subtle">
+      <ul class="list-inline mb-2">
+        <li class="list-inline-item"><a href="about.html" class="text-secondary text-decoration-none">About Us</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Contact</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Terms</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Privacy</a></li>
+      </ul>
+      <p class="text-secondary mb-0">&copy; 2025 Beat the Backlog</p>
+    </footer> <!-- End of Footer -->
+
+    <!-- Bootstrap JS Bundle (FIXED integrity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <!-- Local JavaScript -->
+    <script src="js/main.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+/* ===================================================================
+   Global Styles (Apply to all pages)
+   =================================================================== */
+
+body {
+  /* Set the default background color and text color for the dark theme */
+  background-color: #212529; /* Bootstrap 'dark' bg color */
+  color: #f8f9fa; /* white text color */
+}
+
+
+/* ===================================================================
+   Page-Specific Styles
+   =================================================================== */
+
+/* --- Home Page (home.html) --- */
+
+/* Styles for the main top banner on the home page */
+#home-header {
+ 
+  background-image: 
+    linear-gradient(rgba(33, 37, 41, 0.85), rgba(33, 37, 41, 0.85)),
+    /* Image file */
+    url('../images/pressstart.jpg');
+  
+  /* Make the background image fill the entire header area */
+  background-size: cover;
+  /* Center the image vertically and horizontally */
+  background-position: center;
+  
+  /* Add padding for visual appeal */
+  padding: 8rem 2rem;
+  /* Add rounded corners */
+  border-radius: 0.5rem;
+}
+
+/* --- Details Page (details.html) --- */
+
+/* Styles for the interactive star rater */
+#user-star-rating .star {
+  cursor: pointer; /* Show a hand cursor on hover */
+  color: #6c757d; /* Default "off" color */
+  font-size: 2.5rem; /* Make the stars large */
+  transition: color 0.1s ease-in-out; /* Add a fast, smooth color fade */
+}
+
+/* This class will be added by JavaScript when a star is clicked */
+#user-star-rating .star.selected {
+  color: #ffc107; /* "On" color */
+}
+
+/* When you hover over the container, all stars turn yellow */
+#user-star-rating:hover .star {
+  color: #ffc107;
+}

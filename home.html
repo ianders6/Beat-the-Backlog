@@ -1,0 +1,148 @@
+<!-- 
+  Name : Isaiah Anderson
+  Class : CSC 489
+  Date : 12/14/2025
+  Assignment : CSC 489 Final Project 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beat the Backlog - Home</title>
+    
+    <!-- Bootstrap CSS (FIXED integrity) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- 
+      FIREBASE SDKs (NEW)
+      We add these to every HTML page.
+    -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js" defer></script>
+  </head>
+  
+  <body>
+
+    <!-- 
+      Main Navigation Bar (UPDATED)
+      Now has two sections: one for logged-out users, one for logged-in users.
+      JavaScript will show/hide them based on auth state.
+    -->
+    <nav class="navbar navbar-expand navbar-dark bg-dark border-bottom border-secondary-subtle">
+      <div class="container">
+        <!-- Site Brand/Logo -->
+        <a class="navbar-brand" href="home.html">Beat the Backlog</a>
+        
+        <!-- Navbar Links -->
+        <div class="navbar-collapse" id="navbarNav">
+          
+          <!-- Logged-OUT Links -->
+          <ul class="navbar-nav ms-auto align-items-center" id="nav-logged-out">
+            <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="registration.html">Register</a></li>
+            <li class="nav-item"><a class="nav-link" href="library.html">Games</a></li>
+            <li class="nav-item">
+              <form class="d-flex" role="search" id="navbar-search-form">
+                <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" id="navbar-search-input" name="search">
+                <button class="btn btn-sm btn-outline-light" type="submit">Search</button>
+              </form>
+            </li>
+          </ul>
+
+          <!-- Logged-IN Links -->
+          <ul class="navbar-nav ms-auto align-items-center d-none" id="nav-logged-in">
+            <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="library.html">Games</a></li>
+            <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
+            <li class="nav-item ms-2">
+              <form class="d-flex" role="search" id="navbar-search-form-auth">
+                <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" id="navbar-search-input-auth" name="search">
+                <button class="btn btn-sm btn-outline-light" type="submit">Search</button>
+              </form>
+            </li>
+            <li class="nav-item ms-2">
+              <a href="#" class="btn btn-primary btn-sm" id="log-a-game-btn">Log a Game</a>
+            </li>
+            <li class="nav-item ms-2">
+              <button class="btn btn-sm btn-outline-secondary" id="logout-button">Logout</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav> <!-- End of Navbar -->
+
+    <!-- 
+      Page Header
+      This header is styled by styles.css with the #home-header ID
+      to have a background image.
+    -->
+    <header class="text-center" id="home-header">
+      <div class="container py-5">
+        <h1 class="display-3 fw-bold">Beat the BackLog</h1>
+        <p class="lead fs-4">Track, prioritize, and conquer your game library</p>
+      </div>
+    </header> <!-- End of Page Header -->
+
+    <!-- Main Page Content -->
+    <main class="container my-5">
+
+      <!-- "What is Beat the Backlog?" Section -->
+      <section class="text-center mb-5 pb-4">
+        <h2 class="fw-bold">What is Beat the Backlog?</h2>
+        <p class="lead col-lg-8 mx-auto">
+          Beat the Backlog is your hub for managing your game collection. Track your backlog, log your progress, and rate the games you've completed.
+        </p>
+      </section>
+
+      <!-- Feature Section 1: Track Collection -->
+      <section class="row align-items-center my-5 py-4">
+        <div class="col-md-6">
+          <img src="../images/dashboard.jpg" class="img-fluid rounded-3" alt="Placeholder for game collection visual">
+        </div>
+        <div class="col-md-6 text-center text-md-start mt-4 mt-md-0">
+          <h3 class="fw-bold">Track your personal game collection</h3>
+          <p class="fs-5">
+            Organize your games into "Playing," "Completed," or "Backlog." Rate your favorites and track your collection stats from your dashboard.
+          </p>
+        </div>
+      </section>
+
+      <!-- Feature Section 2: Discover Your Next Adventure -->
+      <section class="row align-items-center my-5 py-4">
+        <div class="col-md-6 order-md-2">
+          <img src="../images/library.jpg" class="img-fluid rounded-3" alt="Placeholder for game list visual">
+        </div>
+        <div class="col-md-6 order-md-1 text-center text-md-start mt-4 mt-md-0">
+          <h3 class="fw-bold">Discover Your Next Adventure</h3>
+          <p class="fs-5">
+            Search through a massive library of games powered by the RAWG API. Filter by platform, view detailed game info, and instantly add new finds to your backlog.
+          </p>
+        </div>
+      </section>
+
+    </main> <!-- End of Main Page Content -->
+
+    <!-- Global Footer -->
+    <footer class="container text-center mt-5 py-4 border-top border-secondary-subtle">
+      <ul class="list-inline mb-2">
+        <li class="list-inline-item"><a href="about.html" class="text-secondary text-decoration-none">About Us</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Contact</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Terms</a></li>
+        <li class="list-inline-item"><a href="#" class="text-secondary text-decoration-none">Privacy</a></li>
+      </ul>
+      <p class="text-secondary mb-0">&copy; 2025 Beat the Backlog</p>
+    </footer> <!-- End of Footer -->
+
+    <!-- Bootstrap JS Bundle (FIXED integrity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <!-- Local JavaScript -->
+    <script src="js/main.js" defer></script>
+  </body>
+</html>
