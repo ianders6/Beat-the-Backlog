@@ -2,10 +2,12 @@
    Global Styles (Apply to all pages)
    =================================================================== */
 
+/* Apply base styling for the entire site */
 body {
-  /* Set the default background color and text color for the dark theme */
-  background-color: #212529; /* Bootstrap 'dark' bg color */
-  color: #f8f9fa; /* white text color */
+  /* Set the default background color to a dark shade (Bootstrap dark theme) */
+  background-color: #212529; 
+  /* Set text color to white for good contrast against dark background */
+  color: #f8f9fa; 
 }
 
 
@@ -17,39 +19,45 @@ body {
 
 /* Styles for the main top banner on the home page */
 #home-header {
- 
+  /* Background image layered with a semi-transparent dark overlay */
   background-image: 
     linear-gradient(rgba(33, 37, 41, 0.85), rgba(33, 37, 41, 0.85)),
-    /* Image file */
-    url('../images/pressstart.jpg');
+    url('../images/pressstart.jpg'); /* Main header image */
   
-  /* Make the background image fill the entire header area */
+  /* Ensure the background image covers the entire header container */
   background-size: cover;
   /* Center the image vertically and horizontally */
   background-position: center;
   
-  /* Add padding for visual appeal */
+  /* Add space inside the header for content */
   padding: 8rem 2rem;
-  /* Add rounded corners */
+  /* Slightly round the corners of the header */
   border-radius: 0.5rem;
 }
 
+
 /* --- Details Page (details.html) --- */
 
-/* Styles for the interactive star rater */
+/* Styles for the interactive star rating component */
 #user-star-rating .star {
-  cursor: pointer; /* Show a hand cursor on hover */
-  color: #6c757d; /* Default "off" color */
-  font-size: 2.5rem; /* Make the stars large */
-  transition: color 0.1s ease-in-out; /* Add a fast, smooth color fade */
+  /* Change cursor to hand pointer to indicate it's clickable */
+  cursor: pointer;
+  /* Default "inactive" star color */
+  color: #6c757d;
+  /* Make stars visually prominent */
+  font-size: 2.5rem;
+  /* Smooth color transition when hovering or selecting */
+  transition: color 0.1s ease-in-out;
 }
 
-/* This class will be added by JavaScript when a star is clicked */
+/* Style for stars that are selected by the user */
 #user-star-rating .star.selected {
-  color: #ffc107; /* "On" color */
+  /* Highlight selected stars in gold */
+  color: #ffc107;
 }
 
-/* When you hover over the container, all stars turn yellow */
+/* Style for hover effect on the star container */
 #user-star-rating:hover .star {
+  /* Show all stars as gold when hovering over the rating area */
   color: #ffc107;
 }

@@ -3,26 +3,33 @@ const API_KEY = "28e720e21cc54874bf2635856736548e";
 const BASE_URL = "https://api.rawg.io/api";
 
 //
-// --- 1. FIREBASE CONFIG (COMPLETED) ---
-//
-// I've pasted your specific config object here.
+// --- FIREBASE CONFIG ---
 //
 const firebaseConfig = {
-  apiKey: "AIzaSyCWHBOS1kGTq4O8UluV0Mu55gIoUwW6OiQ",
-  authDomain: "beat-the-backlog.firebaseapp.com",
-  projectId: "beat-the-backlog",
-  storageBucket: "beat-the-backlog.firebasestorage.app",
-  messagingSenderId: "411836598422",
-  appId: "1:411836598422:web:ec711fc25374a3287f5ab7",
-  measurementId: "G-ND8J7H0NL1"
+  apiKey: "AIzaSyCWHBOS1kGTq4O8UluV0Mu55gIoUwW6OiQ",
+  authDomain: "beat-the-backlog.firebaseapp.com",
+  projectId: "beat-the-backlog",
+  storageBucket: "beat-the-backlog.firebasestorage.app",
+  messagingSenderId: "411836598422",
+  appId: "1:411836598422:web:ec711fc25374a3287f5ab7",
+  measurementId: "G-ND8J7H0NL1"
 };
 
 // --- GLOBAL FIREBASE VARIABLES ---
-// We use 'let' because they are initialized after the scripts load
 let app;
 let auth;
 let db;
-let currentUserId = null; // The unique ID of the currently logged-in user
+let currentUserId = null; 
+
+// --- HELPER FUNCTION ---
+/**
+ * Decodes the API key at runtime.
+ */
+function getApiKey() {
+  // Using plain key as requested in previous steps
+  return API_KEY; 
+}
+
 
 // --- MAIN CODE EXECUTION ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,40 +37,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   try {
     // --- 2. INITIALIZE FIREBASE ---
-    // We use the "compat" version, which is loaded from the scripts in your HTML
     app = firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
     console.log("Firebase initialized.");
     
     // --- 3. AUTH STATE LISTENER ---
-    // This is the most important listener. It runs on *every* page load
-    // and checks if a user is logged in or out.
     auth.onAuthStateChanged(user => {
       const loggedInNav = document.getElementById("nav-logged-in");
       const loggedOutNav = document.getElementById("nav-logged-out");
-      const userActions = document.getElementById("user-actions"); // On details page
+      const userActionButtons = document.getElementById("user-action-buttons"); // Wrapper on details page
       const dashboardContainer = document.getElementById("dashboard-container");
 
       if (user) {
         // --- USER IS LOGGED IN ---
         console.log("User is LOGGED IN:", user.uid);
-        currentUserId = user.uid; // Store the user's ID globally
+        currentUserId = user.uid; 
 
-        // Update Navbar
         if (loggedInNav) loggedInNav.classList.remove("d-none");
         if (loggedOutNav) loggedOutNav.classList.add("d-none");
         
-        // Show user-specific buttons on details page
-        const userActionButtons = document.getElementById("user-action-buttons");
-        if (userActionButtons) userActionButtons.classList.remove("d-none");
+        // Explicitly show user action buttons if they exist
+        if (userActionButtons) {
+            userActionButtons.classList.remove("d-none");
+        }
         
-        // Populate username on dashboard
         const usernameEl = document.getElementById("dashboard-username");
         if (usernameEl) {
-          // --- UPDATED ---
-          // Use the saved displayName first, fall back to email
           usernameEl.textContent = user.displayName || user.email.split('@')[0];
+        }
+        
+        // Load settings if on settings page
+        const settingsForm = document.getElementById("settings-form");
+        if (settingsForm) {
+            loadUserSettings(user);
         }
 
       } else {
@@ -71,29 +78,35 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("User is LOGGED OUT");
         currentUserId = null;
 
-        // Update Navbar
         if (loggedInNav) loggedInNav.classList.add("d-none");
         if (loggedOutNav) loggedOutNav.classList.remove("d-none");
 
-        // Hide user-specific buttons on details page
-        const userActionButtons = document.getElementById("user-action-buttons");
-        if (userActionButtons) userActionButtons.classList.add("d-none");
+        // Hide user action buttons
+        if (userActionButtons) {
+            userActionButtons.classList.add("d-none");
+        }
         
-        // If on dashboard, show "logged out" message
         if (dashboardContainer) {
           dashboardContainer.innerHTML = `<h2 class="text-center text-white-50">Please <a href="login.html">log in</a> to view your dashboard.</h2>`;
+        }
+        
+        // Show login prompt on settings page
+        const settingsForm = document.getElementById("settings-form");
+        if (settingsForm) {
+             const mainContainer = document.querySelector(".container.my-5");
+             if (mainContainer) {
+                mainContainer.innerHTML = `<h2 class="text-center text-white-50">Please <a href="login.html">log in</a> to view your settings.</h2>`;
+             }
         }
       }
     });
 
   } catch (error) {
     console.error("Firebase initialization failed:", error);
-    // You could show a "site down" message here
   }
 
-  // --- Global Listeners (for logged-in users) ---
+  // --- Global Listeners ---
   
-  // 1. Navbar Search (for both logged-in and logged-out states)
   const navbarSearchForm = document.getElementById("navbar-search-form");
   if (navbarSearchForm) {
     navbarSearchForm.addEventListener("submit", (event) => {
@@ -118,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Log a Game Button
   const logAGameBtn = document.getElementById("log-a-game-btn");
   if (logAGameBtn) {
     logAGameBtn.addEventListener("click", (event) => {
@@ -127,13 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. Logout Button
   const logoutButton = document.getElementById("logout-button");
   if (logoutButton) {
     logoutButton.addEventListener("click", () => {
       auth.signOut().then(() => {
         console.log("User logged out.");
-        window.location.href = "home.html"; // Redirect to home on logout
+        window.location.href = "home.html"; 
       }).catch((error) => {
         console.error("Logout failed:", error);
       });
@@ -142,44 +153,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // --- Page-Specific Logic ---
-  // We check for elements *before* adding listeners
 
-  // 1. Check if we are on the LIBRARY page
+  // 1. LIBRARY PAGE
   const libraryContainer = document.getElementById("game-library-display");
   if (libraryContainer) {
     console.log("On Library page.");
-    populateFilterDropdowns(); // Populate platform filter
+    populateFilterDropdowns(); 
     
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get('search');
-    let initialParams = `&page_size=20`;
-    let loadingQuery = null; // --- NEW ---
+    let initialParams = `&page_size=20&exclude_adults=true`;
+    let loadingQuery = null;
 
     if (searchQuery) {
       console.log(`Searching for: ${searchQuery}`);
-      // --- UPDATED: Added search_exact=true ---
       initialParams += `&search=${encodeURIComponent(searchQuery)}&search_exact=true`;
-      loadingQuery = searchQuery; // --- NEW ---
+      loadingQuery = searchQuery;
       const searchInput = document.getElementById("searchInput");
       if(searchInput) searchInput.value = searchQuery;
     } else {
       console.log("Populating default game list...");
-      initialParams += `&ordering=-rating`;
+      initialParams += `&exclude_adults=true`;
     }
     
-    // --- UPDATED: Pass loadingQuery to the function ---
     fetchAndDisplayLibraryGames(initialParams, libraryContainer, loadingQuery);
 
-    // Add listener for the IN-PAGE search/filter form
     const librarySearchForm = document.getElementById("library-filter-form");
     if (librarySearchForm) {
       librarySearchForm.addEventListener("submit", (event) => {
         event.preventDefault();
         
-        let queryParams = `&page_size=20`;
+        let queryParams = `&page_size=20&exclude_adults=true`;
         const query = document.getElementById("searchInput").value;
         if (query) {
-          // --- UPDATED: Added search_exact=true ---
           queryParams += `&search=${encodeURIComponent(query)}&search_exact=true`;
         }
         
@@ -194,14 +200,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         console.log(`Library page filtering API. Params: ${queryParams}`);
-        // --- UPDATED: Pass the query to show the correct loading message ---
         fetchAndDisplayLibraryGames(queryParams, libraryContainer, query);
       });
     }
-  } // end if(libraryContainer)
+  } 
 
 
-  // 2. Check if we are on the DETAILS page
+  // 2. DETAILS PAGE
   const detailsContainer = document.getElementById("game-details-container");
   if (detailsContainer) {
     console.log("On Details page.");
@@ -212,7 +217,8 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(`Fetching details for slug: ${gameSlug}`);
       fetchAndDisplayGameDetails(gameSlug);
       
-      // Add listeners to our status buttons
+      // Listeners are added regardless of auth state initially, 
+      // but only work if logged in (checked inside functions)
       document.getElementById("btn-status-completed")?.addEventListener("click", () => {
         logGameStatus(gameSlug, "Completed");
       });
@@ -220,14 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
         logGameStatus(gameSlug, "Playing");
       });
       document.getElementById("btn-status-backlog")?.addEventListener("click", () => {
-        logGameStatus(gameSlug, "Backlog"); // This is the "Log this Game" button
+        logGameStatus(gameSlug, "Backlog"); 
       });
       
       const starRatingContainer = document.getElementById("user-star-rating");
       if (starRatingContainer) {
-        // We must wait for auth to know if we should load the rating
         auth.onAuthStateChanged(user => {
           if (user) {
+            // Re-check visibility here just in case
+            const actions = document.getElementById("user-action-buttons");
+            if (actions) actions.classList.remove("d-none");
             loadAndHighlightSavedRating(gameSlug);
           }
         });
@@ -235,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
         starRatingContainer.addEventListener("click", (e) => {
           if (e.target.classList.contains("star")) {
             const rating = e.target.dataset.value;
-            if (rating && currentUserId) { // Only save if logged in
+            if (rating && currentUserId) { 
               saveGameRating(gameSlug, parseInt(rating));
               highlightStars(rating);
               starRatingContainer.dataset.currentRating = rating;
@@ -264,10 +272,10 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("No game slug found in URL.");
       detailsContainer.innerHTML = `<p class="text-danger text-center fs-3">Error: No game was specified.</p>`;
     }
-  } // end if(detailsContainer)
+  } 
 
 
-  // 3. Check if we are on the LOGIN page
+  // 3. LOGIN PAGE
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
     console.log("Login form found.");
@@ -278,19 +286,18 @@ document.addEventListener("DOMContentLoaded", () => {
       
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          // Signed in
           console.log("User logged in:", userCredential.user.uid);
-          window.location.href = "dashboard.html"; // Redirect to dashboard
+          window.location.href = "dashboard.html"; 
         })
         .catch((error) => {
           console.error("Login failed:", error.message);
           alert(`Login failed: ${error.message}`);
         });
     });
-  } // end if(loginForm)
+  } 
   
 
-  // 4. Check if we are on the REGISTRATION page
+  // 4. REGISTRATION PAGE
   const registrationForm = document.getElementById("registration-form");
   if (registrationForm) {
     console.log("Registration form found.");
@@ -309,26 +316,20 @@ document.addEventListener("DOMContentLoaded", () => {
       
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          // Signed up
           const user = userCredential.user;
-          console.log("New user created:", user.uid);
-
-          // --- NEW: Save the username to their Auth profile ---
           return user.updateProfile({
             displayName: username
           }).then(() => {
-            // --- NEW: Also save it to their Firestore document ---
             db.collection("userLogs").doc(user.uid).set({
               userId: user.uid,
-              username: username, // Save the username
-              email: email, // Save the email
+              username: username,
+              email: email, 
               createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
           });
         })
         .then(() => {
           alert("Registration successful! Welcome!");
-          // Redirect to dashboard since they are now logged in
           window.location.href = "dashboard.html"; 
         })
         .catch((error) => {
@@ -336,16 +337,14 @@ document.addEventListener("DOMContentLoaded", () => {
           alert(`Registration failed: ${error.message}`);
         });
     });
-  } // end if(registrationForm)
+  } 
   
 
-  // 5. Check if we are on the DASHBOARD page
+  // 5. DASHBOARD PAGE
   const dashboardContainer = document.getElementById("dashboard-container");
   if (dashboardContainer) {
     console.log("On Dashboard page.");
     
-    // Auth listener handles showing/hiding content,
-    // but we still need to fetch data *if* the user is logged in
     auth.onAuthStateChanged(user => {
       if (user) {
         updateDashboardStats();
@@ -356,54 +355,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
-  } // end if(dashboardContainer)
+  } 
   
   
-  // 6. Check if we are on the SETTINGS page
+  // 6. SETTINGS PAGE
   const settingsForm = document.getElementById("settings-form");
   if (settingsForm) {
     console.log("On Settings page.");
-
-    // Populate user info when auth is ready
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // --- UPDATED ---
-        // Use the saved displayName first, fall back to email
-        document.getElementById('settings-username').value = user.displayName || user.email.split('@')[0];
-        document.getElementById('settings-email').value = user.email;
-      } else {
-        // If user is not logged in, show a message
-        const mainContainer = document.querySelector(".container.my-5");
-        if (mainContainer) {
-            mainContainer.innerHTML = `<h2 class="text-center text-white-50">Please <a href="login.html">log in</a> to view your settings.</h2>`;
-        }
-      }
-    });
+    
+    // Auth listener at the top handles loading settings.
 
     // Add listener for the main "Save Changes" button
     settingsForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      
-      // Read values from the form (placeholders)
-      const theme = document.getElementById('themeDark').checked ? 'dark' : 'light';
-      const emailNotifications = document.getElementById('emailNotifications').checked;
-      const inAppNotifications = document.getElementById('inAppNotifications').checked;
-      
-      console.log("Settings form submitted (placeholder):");
-      console.log("Theme:", theme);
-      console.log("Email Notifications:", emailNotifications);
-      console.log("In-App Notifications:", inAppNotifications);
-      
-      alert("Settings saved (check console for details)!\nThis is a placeholder.");
-    });
-    
-    // Add placeholder listeners for other buttons
-    document.getElementById("btn-edit-profile")?.addEventListener("click", () => {
-      alert("Edit Profile button clicked!\n(This is a placeholder)");
-    });
-    
-    document.getElementById("btn-change-password")?.addEventListener("click", () => {
-      alert("Change Password button clicked!\n(This is a placeholder)");
+      saveUserSettings();
     });
     
     document.getElementById("btn-download-data")?.addEventListener("click", () => {
@@ -411,28 +376,139 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     document.getElementById("btn-delete-account")?.addEventListener("click", () => {
-      if (confirm("Are you sure you want to delete your account?\nThis is a placeholder and cannot be undone.")) {
-        alert("Account deleted (placeholder)!");
+      if (confirm("Are you sure you want to delete your account? This cannot be undone!")) {
+         deleteUserAccount();
       }
     });
-  } // end if(settingsForm)
-  
-
-  // --- Home Page Specific Logic ---
-  if (document.title === "Beat the Backlog - Home") {
-    console.log("On Home page.");
-    // No specific API calls needed on home load anymore
-  }
+  } 
   
 }); // end DOMContentLoaded
 
 
-// --- FIRESTORE HELPER FUNCTIONS (REPLACES LOCALSTORAGE) ---
+// --- SETTINGS FUNCTIONS ---
 
-/**
- * Gets a reference to the user's "games" subcollection in Firestore.
- * @returns {firebase.firestore.CollectionReference | null}
- */
+async function loadUserSettings(user) {
+    if(!user) return;
+    
+    // Set basic info from Auth
+    document.getElementById('settings-username').value = user.displayName || "";
+    document.getElementById('settings-email').value = user.email || "";
+    
+    // Fetch extended settings from Firestore
+    try {
+        const doc = await db.collection("userLogs").doc(user.uid).get();
+        if(doc.exists) {
+            const data = doc.data();
+            const settings = data.settings || {};
+            // Load notifications
+            const emailNotif = document.getElementById('emailNotifications');
+            const appNotif = document.getElementById('inAppNotifications');
+            if(emailNotif) emailNotif.checked = settings.emailNotifications !== false; 
+            if(appNotif) appNotif.checked = settings.inAppNotifications !== false; 
+            
+            // Load theme (radio buttons)
+            if(settings.theme === 'light') {
+                document.getElementById('themeLight').checked = true;
+            } else {
+                document.getElementById('themeDark').checked = true;
+            }
+        }
+    } catch(error) {
+        console.error("Error loading settings:", error);
+    }
+}
+
+async function saveUserSettings() {
+    const user = auth.currentUser;
+    if(!user) return;
+    
+    // 1. Get Notification Settings
+    const emailNotifications = document.getElementById('emailNotifications')?.checked;
+    const inAppNotifications = document.getElementById('inAppNotifications')?.checked;
+    
+    // 2. Get Theme
+    const theme = document.getElementById('themeDark').checked ? 'dark' : 'light';
+    
+    // 3. Get Profile Changes
+    const newUsername = document.getElementById("settings-username").value;
+    const newPassword = document.getElementById("settings-password")?.value;
+
+    try {
+        // Save preferences to Firestore
+        await db.collection("userLogs").doc(user.uid).set({
+            settings: {
+                theme,
+                emailNotifications,
+                inAppNotifications
+            }
+        }, { merge: true });
+
+        // Update profile (Username) if changed
+        if(newUsername && newUsername !== user.displayName) {
+             console.log("Updating username...");
+             await updateProfile(newUsername);
+        }
+        
+        // Update Password if provided
+        if (newPassword && newPassword.length > 0) {
+             if (newPassword.length >= 6) {
+                 console.log("Updating password...");
+                 await user.updatePassword(newPassword);
+                 alert("Password updated successfully.");
+                 document.getElementById("settings-password").value = ""; // Clear field
+             } else {
+                 alert("Password must be at least 6 characters.");
+                 return; // Stop if password is invalid
+             }
+        }
+        
+        alert("Settings saved successfully!");
+    } catch(error) {
+        console.error("Error saving settings:", error);
+        // Handle "Requires recent login" error specifically
+        if(error.code === 'auth/requires-recent-login') {
+            alert("For security, please log out and log back in to change your password.");
+        } else {
+            alert(`Failed to save settings: ${error.message}`);
+        }
+    }
+}
+
+async function updateProfile(newUsername) {
+    const user = auth.currentUser;
+    if(!user) return;
+    try {
+        await user.updateProfile({ displayName: newUsername });
+        await db.collection("userLogs").doc(user.uid).update({ username: newUsername });
+    } catch(error) {
+        console.error("Error updating profile:", error);
+        throw error; // Re-throw to be caught in saveUserSettings
+    }
+}
+
+async function deleteUserAccount() {
+    const user = auth.currentUser;
+    if(!user) return;
+    
+    try {
+        // Delete Firestore Data
+        await db.collection("userLogs").doc(user.uid).delete();
+        
+        // Delete Auth User
+        await user.delete();
+        
+        alert("Account deleted. Redirecting to home.");
+        window.location.href = "home.html";
+        
+    } catch(error) {
+        console.error("Error deleting account:", error);
+        alert("Failed to delete account. You may need to re-login to perform this sensitive action.");
+    }
+}
+
+
+// --- FIRESTORE HELPER FUNCTIONS ---
+
 function getUserGamesCollection() {
   if (!currentUserId) {
     console.log("Not logged in, cannot get user collection.");
@@ -441,11 +517,6 @@ function getUserGamesCollection() {
   return db.collection("userLogs").doc(currentUserId).collection("games");
 }
 
-/**
- * Gets a specific logged game document from Firestore.
- * @param {string} gameSlug - The slug of the game to find.
- * @returns {Promise<object | null>} A promise that resolves to the game data or null.
- */
 async function getLoggedGame(gameSlug) {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) return null;
@@ -463,11 +534,6 @@ async function getLoggedGame(gameSlug) {
   }
 }
 
-/**
- * Saves a game's status to Firestore. Creates/merges the doc.
- * @param {string} gameSlug - The unique ID (slug) of the game.
- * @param {string} status - The status ("Completed", "Playing", "Backlog").
- */
 async function logGameStatus(gameSlug, status) {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) {
@@ -478,26 +544,18 @@ async function logGameStatus(gameSlug, status) {
   const gameData = {
     slug: gameSlug,
     status: status,
-    // Use server timestamp to track when it was logged/updated
     updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
   };
   
   try {
-    // .doc(gameSlug).set(..., { merge: true }) will create OR update the doc
     await gamesCollection.doc(gameSlug).set(gameData, { merge: true });
     alert(`Game saved as '${status}'! It will now appear on your dashboard.`);
-    console.log(`Firestore: Saved status for ${gameSlug}`);
   } catch (error) {
     console.error("Error saving game status:", error);
     alert(`Error saving status: ${error.message}`);
   }
 }
 
-/**
- * Saves a game's rating to Firestore. Creates/merges the doc.
- * @param {string} gameSlug - The unique ID (slug) of the game.
- * @param {number} rating - The rating (1-5).
- */
 async function saveGameRating(gameSlug, rating) {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) {
@@ -514,17 +572,12 @@ async function saveGameRating(gameSlug, rating) {
   try {
     await gamesCollection.doc(gameSlug).set(gameData, { merge: true });
     alert(`Game rating saved as ${rating} stars!`);
-    console.log(`Firestore: Saved rating for ${gameSlug}`);
   } catch (error) {
     console.error("Error saving game rating:", error);
     alert(`Error saving rating: ${error.message}`);
   }
 }
 
-/**
- * Removes a game from the user's Firestore log.
- * @param {string} gameSlug - The slug of the game to remove.
- */
 async function removeGameFromLog(gameSlug) {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) {
@@ -536,12 +589,11 @@ async function removeGameFromLog(gameSlug) {
     await gamesCollection.doc(gameSlug).delete();
     console.log(`Removed game: ${gameSlug}`);
     
-    // Refresh the dashboard list and stats
     const gameListContainer = document.getElementById("dashboard-game-list");
     if (gameListContainer) {
-      populateUserGameList(gameListContainer); // Refresh list
+      populateUserGameList(gameListContainer); 
     }
-    updateDashboardStats(); // Update counts
+    updateDashboardStats(); 
   } catch (error) {
     console.error("Error removing game:", error);
     alert(`Error removing game: ${error.message}`);
@@ -562,10 +614,6 @@ function highlightStars(rating) {
   });
 }
 
-/**
- * Loads the saved rating from Firestore and highlights the stars.
- * @param {string} gameSlug - The unique ID (slug) of the game.
- */
 async function loadAndHighlightSavedRating(gameSlug) {
   const game = await getLoggedGame(gameSlug);
   const savedRating = game ? game.rating : 0;
@@ -581,10 +629,6 @@ async function loadAndHighlightSavedRating(gameSlug) {
 
 // --- API HELPER FUNCTIONS ---
 
-/**
- * Populates the dashboard with games saved in Firestore.
- * @param {HTMLElement} container - The container to display the games in.
- */
 async function populateUserGameList(container) {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) {
@@ -595,7 +639,6 @@ async function populateUserGameList(container) {
   try {
     container.innerHTML = `<p class="text-center text-white-50">Loading your logged games...</p>`;
     
-    // 1. Get all logged game documents from Firestore
     const snapshot = await gamesCollection.get();
     
     if (snapshot.empty) {
@@ -605,18 +648,16 @@ async function populateUserGameList(container) {
 
     const loggedGames = snapshot.docs.map(doc => doc.data());
     
-    // 2. Create an array of fetch promises to get full game details from RAWG
     const gamePromises = loggedGames.map(game => 
-      fetch(`${BASE_URL}/games/${game.slug}?key=${API_KEY}`)
+      fetch(`${BASE_URL}/games/${game.slug}?key=${getApiKey()}`)
         .then(response => {
           if (!response.ok) {
             console.error(`API Error for ${game.slug}: ${response.status}`);
-            return null; // Skip if API fails for one game
+            return null; 
           }
           return response.json();
         })
         .then(gameData => {
-          // Re-attach our saved data (status, rating) to the API data
           if (gameData) {
             gameData.savedStatus = game.status;
             gameData.userRating = game.rating;
@@ -626,23 +667,27 @@ async function populateUserGameList(container) {
     );
     
     let games = await Promise.all(gamePromises);
-    games = games.filter(game => game !== null); // Filter out any failed fetches
+    games = games.filter(game => game !== null);
     
+    // Client-side filter for inappropriate content
+    games = games.filter(game => {
+        if (game.name.toLowerCase().includes('hentai')) return false;
+        return true;
+    });
+
     console.log("Dashboard/Local Games Data:", games);
     
-    container.innerHTML = ""; // Clear loading message
+    container.innerHTML = ""; 
     
     const row = document.createElement("div");
     row.className = "row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4";
     
     games.forEach(game => {
-      // Pass 'true' to createGameCard to tell it to add a remove button
       row.appendChild(createGameCard(game, game.savedStatus, game.userRating, true));
     });
     
     container.appendChild(row);
     
-    // 3. After cards are added, find all remove buttons and add listeners
     container.querySelectorAll(".btn-remove-game").forEach(button => {
       button.addEventListener("click", (event) => {
         const gameSlug = event.currentTarget.dataset.slug;
@@ -660,21 +705,14 @@ async function populateUserGameList(container) {
   }
 }
 
-/**
- * Fetches and displays games in the library based on a query string.
- * @param {string} queryParams - The full query string for the API call (e.g., "&search=...").
- * @param {HTMLElement} container - The container to display the games in.
- * @param {string | null} loadingQuery - The search term, if any, for the loading message.
- */
 async function fetchAndDisplayLibraryGames(queryParams, container, loadingQuery = null) {
   try {
-    // --- UPDATED: Use dynamic loading message ---
     const loadingMessage = loadingQuery 
       ? `Searching for '${loadingQuery}'...` 
       : "Loading popular games...";
     container.innerHTML = `<h2 class="text-center text-white-50">${loadingMessage}</h2>`;
     
-    const response = await fetch(`${BASE_URL}/games?key=${API_KEY}${queryParams}`);
+    const response = await fetch(`${BASE_URL}/games?key=${getApiKey()}${queryParams}`);
     
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
@@ -683,33 +721,24 @@ async function fetchAndDisplayLibraryGames(queryParams, container, loadingQuery 
     const data = await response.json();
     console.log("Library Games Data:", data);
     
-    container.innerHTML = ""; // Clear "Loading..."
+    container.innerHTML = ""; 
     
     if (data.results.length === 0) {
       container.innerHTML = `<h2 class="text-center text-white-50">No results found.</h2>`;
       return;
     }
     
-    // We must wait for auth to be ready before we can check our local data
     auth.onAuthStateChanged(async (user) => {
-      // Clear the container again in case auth was slow
       container.innerHTML = "";
       
-      let loggedGames = [];
-      if (user) {
-        // If logged in, get all their logged games *once* for comparison
-        const gamesCollection = getUserGamesCollection();
-        const snapshot = await gamesCollection.get();
-        loggedGames = snapshot.docs.map(doc => ({ slug: doc.id, ...doc.data() }));
-      }
-      
       for (const game of data.results) {
+        if (game.name.toLowerCase().includes('hentai')) continue;
+
         let userRating = 0;
         let status = null;
 
         if (user) {
-          // Check our pre-fetched list
-          const savedGame = loggedGames.find(g => g.slug === game.slug);
+          const savedGame = await getLoggedGame(game.slug);
           userRating = savedGame ? savedGame.rating : 0;
           status = savedGame ? savedGame.status : null;
         }
@@ -724,13 +753,10 @@ async function fetchAndDisplayLibraryGames(queryParams, container, loadingQuery 
   }
 }
 
-/**
- * Fetches and displays the details for a single game.
- */
 async function fetchAndDisplayGameDetails(gameSlug) {
   const container = document.getElementById("game-details-container");
   try {
-    const response = await fetch(`${BASE_URL}/games/${gameSlug}?key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/games/${gameSlug}?key=${getApiKey()}`);
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
@@ -763,8 +789,9 @@ async function fetchAndDisplayGameDetails(gameSlug) {
       gameDescription.innerHTML = game.description || "No description available.";
     }
     
-    // Note: loadAndHighlightSavedRating is now called *after* auth check
-    // in the main DOMContentLoaded listener for this page.
+    if(currentUserId) {
+      loadAndHighlightSavedRating(gameSlug);
+    }
     
   } catch (error) {
     console.error(`Failed to fetch game details: ${error}`);
@@ -774,14 +801,6 @@ async function fetchAndDisplayGameDetails(gameSlug) {
   }
 }
 
-/**
- * Creates a Bootstrap card HTML element for a single game.
- * @param {object} game - A game object from the RAWG API.
- * @param {string} [status] - Optional status (e.g., "Completed")
- * @param {number} [userRating] - Optional user rating (1-5)
- * @param {boolean} [showRemoveButton] - Optional, if true, adds a remove button
- * @returns {HTMLElement} A div element formatted as a Bootstrap card.
- */
 function createGameCard(game, status, userRating, showRemoveButton = false) {
   const col = document.createElement("div");
   col.className = "col";
@@ -792,7 +811,6 @@ function createGameCard(game, status, userRating, showRemoveButton = false) {
   if (userRating > 0) {
     ratingText = `${userRating} ★ (Your Rating)`;
   }
-  // This version no longer shows community rating
 
   let statusBadge = "";
   if (status) {
@@ -806,7 +824,6 @@ function createGameCard(game, status, userRating, showRemoveButton = false) {
 
   let removeButton = "";
   if (showRemoveButton) {
-    // We use currentTarget, so we must make the slug part of the button itself
     removeButton = `
       <button class="btn btn-danger btn-sm btn-remove-game position-absolute top-0 end-0 m-2" data-slug="${game.slug}" style="width: 32px; height: 32px; padding: 0;" aria-label="Remove game">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" style="pointer-events: none;">
@@ -835,10 +852,6 @@ function createGameCard(game, status, userRating, showRemoveButton = false) {
   return col;
 }
 
-
-/**
- * Counts logged games from Firestore and updates the dashboard stats.
- */
 async function updateDashboardStats() {
   const gamesCollection = getUserGamesCollection();
   if (!gamesCollection) {
@@ -850,17 +863,14 @@ async function updateDashboardStats() {
     const snapshot = await gamesCollection.get();
     const games = snapshot.docs.map(doc => doc.data());
     
-    // Calculate stats
     const completed = games.filter(g => g.status === "Completed").length;
     const playing = games.filter(g => g.status === "Playing").length;
     const backlog = games.filter(g => g.status === "Backlog").length;
     
-    // Find elements
     const elCompleted = document.getElementById("stats-completed");
     const elPlaying = document.getElementById("stats-playing");
     const elBacklog = document.getElementById("stats-backlog");
     
-    // Update text
     if (elCompleted) elCompleted.textContent = completed;
     if (elPlaying) elPlaying.textContent = playing;
     if (elBacklog) elBacklog.textContent = backlog;
@@ -871,16 +881,12 @@ async function updateDashboardStats() {
   }
 }
 
-
 // --- Filter Population Functions ---
 
-/**
- * Fetches all platforms from the API.
- */
 async function fetchPlatforms() {
   try {
     console.log("Fetching platforms...");
-    const response = await fetch(`${BASE_URL}/platforms?key=${API_KEY}&page_size=20`); 
+    const response = await fetch(`${BASE_URL}/platforms?key=${getApiKey()}&page_size=20`); 
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
@@ -893,20 +899,15 @@ async function fetchPlatforms() {
   }
 }
 
-/**
- * Populates the filter dropdowns on the library page.
- */
 async function populateFilterDropdowns() {
   const platformFilter = document.getElementById("platformFilter");
   if (!platformFilter) return;
 
-  // Clear any existing options (like "All Platforms")
   platformFilter.innerHTML = '<option value="">All Platforms</option>';
 
   const platforms = await fetchPlatforms();
 
   if (platforms.length > 0) {
-    // We only care about the main parent platforms for a clean filter
     const parentPlatforms = [
       { id: 4, name: "PC" },
       { id: 187, name: "PlayStation" },
