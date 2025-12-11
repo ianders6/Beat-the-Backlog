@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Get navigation and UI elements to toggle visibility based on auth state.
       const loggedInNav = document.getElementById("nav-logged-in");
       const loggedOutNav = document.getElementById("nav-logged-out");
-      const userActionButtons = document.getElementById("user-action-buttons"); // Wrapper on details page
+      const userActions = document.getElementById("user-action-buttons"); // Wrapper on details page
       const dashboardContainer = document.getElementById("dashboard-container");
 
       if (user) {
@@ -450,7 +450,7 @@ async function handleSettingsFormSubmit() {
     // Create a Promise for the Auth profile update and chained Firestore update.
     const p1 = user.updateProfile({ displayName: newUsername })
       .then(() => {
-        return db.collection("userLogs").doc(user.uid).update({ username: newUsername });
+        return db.collection("userLogs").doc(user.uid).set({ username: newUsername }, { merge: true });
       })
       .then(() => { message += "Username updated. "; });
     updates.push(p1);
@@ -461,7 +461,7 @@ async function handleSettingsFormSubmit() {
     // Create a Promise for the Auth email update and chained Firestore update.
     const p2 = user.updateEmail(newEmail)
       .then(() => {
-        return db.collection("userLogs").doc(user.uid).update({ email: newEmail });
+        return db.collection("userLogs").doc(user.uid).set({ email: newEmail }, { merge: true });
       })
       .then(() => { message += "Email updated. "; });
     updates.push(p2);
@@ -494,7 +494,7 @@ async function handleSettingsFormSubmit() {
     console.error("Settings update error:", error);
     // Handle the security requirement for recent login on sensitive updates.
     if (error.code === 'auth/requires-recent-login') {
-      alert("Security Alert: To change sensitive information (Email/Password), you must have logged in recently. Please Log Out and Log In again, then try updating.");
+      alert("Security Alert: To change sensitive information (Password), you must have logged in recently. Please Log Out and Log In again, then try updating.");
     } else {
       alert(`Error updating settings: ${error.message}`);
     }
